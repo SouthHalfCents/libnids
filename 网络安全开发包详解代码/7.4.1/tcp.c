@@ -1,8 +1,9 @@
 #include "nids.h"
-/* LibnidsµÄÍ·ÎÄ¼ş£¬±ØĞë°üº¬ */
+/* Libnidsçš„å¤´æ–‡ä»¶ï¼Œå¿…é¡»åŒ…å« */
 #ifdef WIN32
 #include "winsock2.h"
 #pragma comment(lib,"ws2_32.lib")
+#pragma comment(lib,"libnids.lib")
 #pragma  warning(disable:4996)
 
 #else
@@ -17,28 +18,28 @@
 
 char ascii_string[10000];
 char *char_to_ascii(char ch)
-/* ´Ëº¯ÊıµÄ¹¦ÄÜÖ÷ÒªÓÃÓÚ°ÑĞ­ÒéÊı¾İ½øĞĞÏÔÊ¾ */
+/* æ­¤å‡½æ•°çš„åŠŸèƒ½ä¸»è¦ç”¨äºæŠŠåè®®æ•°æ®è¿›è¡Œæ˜¾ç¤º */
 {
     char *string;
     ascii_string[0] = 0;
     string = ascii_string;
     if (ch>'a' && ch<'Z')
-     /* ¿É´òÓ¡×Ö·û */
+     /* å¯æ‰“å°å­—ç¬¦ */
     {
         *string++ = ch;
     }
     else if (ch == ' ')
-     /* ¿Õ¸ñ */
+     /* ç©ºæ ¼ */
     {
         *string++ = ch;
     }
     else if (ch == '\n' || ch == '\r')
-     /* »Ø³µºÍ»»ĞĞ */
+     /* å›è½¦å’Œæ¢è¡Œ */
     {
         *string++ = ch;
     }
     else
-     /* ÆäËü×Ö·ûÒÔµã"."±íÊ¾ */
+     /* å…¶å®ƒå­—ç¬¦ä»¥ç‚¹"."è¡¨ç¤º */
     {
         *string++ = '.';
     }
@@ -47,7 +48,7 @@ char *char_to_ascii(char ch)
 }
 /*
 =======================================================================================================================
-ÏÂÃæµÄº¯ÊıÊÇ»Øµ÷º¯Êı£¬ÓÃÓÚ·ÖÎöTCPÁ¬½Ó£¬·ÖÎöTCPÁ¬½Ó×´Ì¬£¬¶ÔTCPĞ­Òé´«ÊäµÄÊı¾İ½øĞĞ·ÖÎö
+ä¸‹é¢çš„å‡½æ•°æ˜¯å›è°ƒå‡½æ•°ï¼Œç”¨äºåˆ†æTCPè¿æ¥ï¼Œåˆ†æTCPè¿æ¥çŠ¶æ€ï¼Œå¯¹TCPåè®®ä¼ è¾“çš„æ•°æ®è¿›è¡Œåˆ†æ
 =======================================================================================================================
  */
 void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
@@ -57,49 +58,49 @@ void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
     char content[65535];
     char content_urgent[65535];
     struct tuple4 ip_and_port = tcp_connection->addr;
-    /* »ñÈ¡TCPÁ¬½ÓµÄµØÖ·ºÍ¶Ë¿Ú¶Ô */
+    /* è·å–TCPè¿æ¥çš„åœ°å€å’Œç«¯å£å¯¹ */
     strcpy(address_string, inet_ntoa(*((struct in_addr*) &(ip_and_port.saddr))));
-    /* »ñÈ¡Ô´µØÖ· */
+    /* è·å–æºåœ°å€ */
     sprintf(address_string + strlen(address_string), " : %i", ip_and_port.source);
-    /* »ñÈ¡Ô´¶Ë¿Ú */
+    /* è·å–æºç«¯å£ */
     strcat(address_string, " <---> ");
     strcat(address_string, inet_ntoa(*((struct in_addr*) &(ip_and_port.daddr))));
-    /* »ñÈ¡Ä¿µÄµØÖ· */
+    /* è·å–ç›®çš„åœ°å€ */
     sprintf(address_string + strlen(address_string), " : %i", ip_and_port.dest);
-    /* »ñÈ¡Ä¿µÄ¶Ë¿Ú */
+    /* è·å–ç›®çš„ç«¯å£ */
     strcat(address_string, "\n");
-    switch (tcp_connection->nids_state) /* ÅĞ¶ÏLIBNIDSµÄ×´Ì¬ */
+    switch (tcp_connection->nids_state) /* åˆ¤æ–­LIBNIDSçš„çŠ¶æ€ */
     {
         case NIDS_JUST_EST:
-            /* ±íÊ¾TCP¿Í»§¶ËºÍTCP·şÎñÆ÷¶Ë½¨Á¢Á¬½Ó×´Ì¬ */
+            /* è¡¨ç¤ºTCPå®¢æˆ·ç«¯å’ŒTCPæœåŠ¡å™¨ç«¯å»ºç«‹è¿æ¥çŠ¶æ€ */
             tcp_connection->client.collect++;
-            /* ¿Í»§¶Ë½ÓÊÕÊı¾İ */
+            /* å®¢æˆ·ç«¯æ¥æ”¶æ•°æ® */
             tcp_connection->server.collect++;
-            /* ·şÎñÆ÷½ÓÊÕÊı¾İ */
+            /* æœåŠ¡å™¨æ¥æ”¶æ•°æ® */
             tcp_connection->server.collect_urg++;
-            /* ·şÎñÆ÷½ÓÊÕ½ô¼±Êı¾İ */
+            /* æœåŠ¡å™¨æ¥æ”¶ç´§æ€¥æ•°æ® */
             tcp_connection->client.collect_urg++;
-            /* ¿Í»§¶Ë½ÓÊÕ½ô¼±Êı¾İ */
-            printf("%sTCPÁ¬½Ó½¨Á¢\n", address_string);
+            /* å®¢æˆ·ç«¯æ¥æ”¶ç´§æ€¥æ•°æ® */
+            printf("%sTCPè¿æ¥å»ºç«‹\n", address_string);
             return ;
         case NIDS_CLOSE:
-            /* ±íÊ¾TCPÁ¬½ÓÕı³£¹Ø±Õ */
+            /* è¡¨ç¤ºTCPè¿æ¥æ­£å¸¸å…³é—­ */
             printf("--------------------------------\n");
-            printf("%sTCPÁ¬½ÓÕı³£¹Ø±Õ\n", address_string);
+            printf("%sTCPè¿æ¥æ­£å¸¸å…³é—­\n", address_string);
             return ;
         case NIDS_RESET:
-            /* ±íÊ¾TCPÁ¬½Ó±»RST¹Ø±Õ */
+            /* è¡¨ç¤ºTCPè¿æ¥è¢«RSTå…³é—­ */
             printf("--------------------------------\n");
-            printf("%sTCPÁ¬½Ó±»RST¹Ø±Õ\n", address_string);
+            printf("%sTCPè¿æ¥è¢«RSTå…³é—­\n", address_string);
             return ;
         case NIDS_DATA:
-            /* ±íÊ¾ÓĞĞÂµÄÊı¾İµ½´ï */
+            /* è¡¨ç¤ºæœ‰æ–°çš„æ•°æ®åˆ°è¾¾ */
             {
                 struct half_stream *hlf;
-                /* ±íÊ¾TCPÁ¬½ÓµÄÒ»¶ËµÄĞÅÏ¢£¬¿ÉÒÔÊÇ¿Í»§¶Ë£¬Ò²¿ÉÒÔÊÇ·şÎñÆ÷¶Ë */
+                /* è¡¨ç¤ºTCPè¿æ¥çš„ä¸€ç«¯çš„ä¿¡æ¯ï¼Œå¯ä»¥æ˜¯å®¢æˆ·ç«¯ï¼Œä¹Ÿå¯ä»¥æ˜¯æœåŠ¡å™¨ç«¯ */
                 if (tcp_connection->server.count_new_urg)
                 {
-                    /* ±íÊ¾TCP·şÎñÆ÷¶Ë½ÓÊÕµ½ĞÂµÄ½ô¼±Êı¾İ */
+                    /* è¡¨ç¤ºTCPæœåŠ¡å™¨ç«¯æ¥æ”¶åˆ°æ–°çš„ç´§æ€¥æ•°æ® */
                     printf("--------------------------------\n");
                     strcpy(address_string, inet_ntoa(*((struct in_addr*) &(ip_and_port.saddr))));
                     sprintf(address_string + strlen(address_string), " : %i", ip_and_port.source);
@@ -114,7 +115,7 @@ void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
                 }
                 if (tcp_connection->client.count_new_urg)
                 {
-                    /* ±íÊ¾TCP¿Í»§¶Ë½ÓÊÕµ½ĞÂµÄ½ô¼±Êı¾İ */
+                    /* è¡¨ç¤ºTCPå®¢æˆ·ç«¯æ¥æ”¶åˆ°æ–°çš„ç´§æ€¥æ•°æ® */
                     printf("--------------------------------\n");
                     strcpy(address_string, inet_ntoa(*((struct in_addr*) &(ip_and_port.saddr))));
                     sprintf(address_string + strlen(address_string), " : %i", ip_and_port.source);
@@ -129,9 +130,9 @@ void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
                 }
                 if (tcp_connection->client.count_new)
                 {
-                    /* ±íÊ¾¿Í»§¶Ë½ÓÊÕµ½ĞÂµÄÊı¾İ */
+                    /* è¡¨ç¤ºå®¢æˆ·ç«¯æ¥æ”¶åˆ°æ–°çš„æ•°æ® */
                     hlf = &tcp_connection->client;
-                    /* ´ËÊ±hlf±íÊ¾µÄÊÇ¿Í»§¶ËµÄTCPÁ¬½ÓĞÅÏ¢ */
+                    /* æ­¤æ—¶hlfè¡¨ç¤ºçš„æ˜¯å®¢æˆ·ç«¯çš„TCPè¿æ¥ä¿¡æ¯ */
                     strcpy(address_string, inet_ntoa(*((struct in_addr*) &(ip_and_port.saddr))));
                     sprintf(address_string + strlen(address_string), ":%i", ip_and_port.source);
                     strcat(address_string, " <--- ");
@@ -142,19 +143,19 @@ void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
                     printf("%s", address_string);
                     memcpy(content, hlf->data, hlf->count_new);
                     content[hlf->count_new] = '\0';
-                    printf("¿Í»§¶Ë½ÓÊÕÊı¾İ\n");
+                    printf("å®¢æˆ·ç«¯æ¥æ”¶æ•°æ®\n");
                     for (i = 0; i < hlf->count_new; i++)
                     {
                         printf("%s", char_to_ascii(content[i]));
-                        /* Êä³ö¿Í»§¶Ë½ÓÊÕµÄĞÂµÄÊı¾İ£¬ÒÔ¿É´òÓ¡×Ö·û½øĞĞÏÔÊ¾ */
+                        /* è¾“å‡ºå®¢æˆ·ç«¯æ¥æ”¶çš„æ–°çš„æ•°æ®ï¼Œä»¥å¯æ‰“å°å­—ç¬¦è¿›è¡Œæ˜¾ç¤º */
                     }
                     printf("\n");
                 }
                 else
                 {
-                    /* ±íÊ¾·şÎñÆ÷¶Ë½ÓÊÕµ½ĞÂµÄÊı¾İ */
+                    /* è¡¨ç¤ºæœåŠ¡å™¨ç«¯æ¥æ”¶åˆ°æ–°çš„æ•°æ® */
                     hlf = &tcp_connection->server;
-                    /* ´ËÊ±hlf±íÊ¾·şÎñÆ÷¶ËµÄTCPÁ¬½ÓĞÅÏ¢ */
+                    /* æ­¤æ—¶hlfè¡¨ç¤ºæœåŠ¡å™¨ç«¯çš„TCPè¿æ¥ä¿¡æ¯ */
                     strcpy(address_string, inet_ntoa(*((struct in_addr*) &(ip_and_port.saddr))));
                     sprintf(address_string + strlen(address_string), ":%i", ip_and_port.source);
                     strcat(address_string, " ---> ");
@@ -165,11 +166,11 @@ void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
                     printf("%s", address_string);
                     memcpy(content, hlf->data, hlf->count_new);
                     content[hlf->count_new] = '\0';
-                    printf("·şÎñÆ÷¶Ë½ÓÊÕÊı¾İ\n");
+                    printf("æœåŠ¡å™¨ç«¯æ¥æ”¶æ•°æ®\n");
                     for (i = 0; i < hlf->count_new; i++)
                     {
                         printf("%s", char_to_ascii(content[i]));
-                        /* Êä³ö·şÎñÆ÷½ÓÊÕµ½µÄĞÂµÄÊı¾İ */
+                        /* è¾“å‡ºæœåŠ¡å™¨æ¥æ”¶åˆ°çš„æ–°çš„æ•°æ® */
                     }
                     printf("\n");
                 }
@@ -181,16 +182,18 @@ void tcp_protocol_callback(struct tcp_stream *tcp_connection, void **arg)
 }
 int main()
 {
+    //é€‰æ‹©ç½‘å¡ï¼Œå¯¹åº”ç½‘å¡å
+    nids_params.device = "eth0";
     if (!nids_init())
-     /* Libnids³õÊ¼»¯ */
+     /* Libnidsåˆå§‹åŒ– */
     {
-        printf("³öÏÖ´íÎó£º%s\n", nids_errbuf);
+        printf("å‡ºç°é”™è¯¯ï¼š%s\n", nids_errbuf);
         return 0;
     }
     nids_register_tcp((void*)tcp_protocol_callback);
-    /* ×¢²á»Øµ÷º¯Êı */
+    /* æ³¨å†Œå›è°ƒå‡½æ•° */
     nids_run();
-    /* Libnids½øÈëÑ­»·²¶»ñÊı¾İ°ü×´Ì¬ */
+    /* Libnidsè¿›å…¥å¾ªç¯æ•è·æ•°æ®åŒ…çŠ¶æ€ */
 	
-	 return 0;
+    return 0;
 }
