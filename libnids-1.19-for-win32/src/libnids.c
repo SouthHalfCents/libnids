@@ -2,7 +2,7 @@
   Copyright (c) 1999 Rafal Wojtczuk <nergal@avet.com.pl>. All rights reserved.
   See the file COPYING for license details.
 */
-
+#include <pcap.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
@@ -15,7 +15,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
-#include <pcap.h>
+
 #include <errno.h>
 #if (HAVE_UNISTD_H)
 #include <unistd.h>
@@ -509,7 +509,7 @@ int nids_init()
 	else if (!open_live())
 		return 0;
 
-	pcap_setbuff(desc, 1024*1024*100);
+	//pcap_setbuff(desc, 1024*1024*100);
 
     if (nids_params.pcap_filter != NULL) 
 	{

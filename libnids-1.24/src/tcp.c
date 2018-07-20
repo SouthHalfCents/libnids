@@ -736,15 +736,19 @@ process_tcp(u_char * data, int skblen)
 		       this_tcphdr);
     return;
   }
+
   if (!(this_tcphdr->th_flags & TH_ACK))
     detect_scan(this_iphdr);
-  if (!nids_params.n_tcp_streams) return;
-  if (my_tcp_check(this_tcphdr, iplen - 4 * this_iphdr->ip_hl,
-		   this_iphdr->ip_src.s_addr, this_iphdr->ip_dst.s_addr)) {
-    nids_params.syslog(NIDS_WARN_TCP, NIDS_WARN_TCP_HDR, this_iphdr,
-		       this_tcphdr);
-    return;
-  }
+  if (!nids_params.n_tcp_streams) 
+	return;
+
+  //if (my_tcp_check(this_tcphdr, iplen - 4 * this_iphdr->ip_hl,
+		   //this_iphdr->ip_src.s_addr, this_iphdr->ip_dst.s_addr)) 
+	{
+    	//nids_params.syslog(NIDS_WARN_TCP, NIDS_WARN_TCP_HDR, this_iphdr,this_tcphdr);
+    	//return;
+	}
+
 #if 0
   check_flags(this_iphdr, this_tcphdr);
 //ECN

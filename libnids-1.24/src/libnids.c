@@ -371,8 +371,13 @@ static void gen_ip_frag_proc(u_char * data, int len)
     if (!nids_params.ip_filter(iph, len))
 	return;
 
+     //cancle checksum
+    //if(ip_fast_csum((unsigned char *) iph, iph->ip_hl) != 0 )
+    //{
+        //return;
+    //}
+
     if (len < (int)sizeof(struct ip) || iph->ip_hl < 5 || iph->ip_v != 4 ||
-	ip_fast_csum((unsigned char *) iph, iph->ip_hl) != 0 ||
 	len < ntohs(iph->ip_len) || ntohs(iph->ip_len) < iph->ip_hl << 2) {
 	glibc_syslog_h_workaround(NIDS_WARN_IP, NIDS_WARN_IP_HDR, iph, 0);
 	return;
@@ -736,18 +741,32 @@ int nids_next()
     struct pcap_pkthdr h;
     char *data;
 
-    if (!desc) {
+    if (!desc) 
+    {
 	strcpy(nids_errbuf, "Libnids not initialized");
 	return 0;
     }
-    if (!(data = (char *) pcap_next(desc, &h))) {
-	strcpy(nids_errbuf, "next: ");
-	strncat(nids_errbuf, pcap_geterr(desc), sizeof(nids_errbuf) - 7);
-	return 0;
-    }
+
+	struct pcap_pkthdr *header = 0;
+	unsigned char *pkt_data = 0;
+	int ret = 0;
+	ret = pcap_next_ex(desc, &header, (const unsigned char**)&pkt_data);
+
+	if (ret == 0)
+	{
+		return 1;
+	}
+	else if (ret == -1)
+	{
+		strcpy(nids_errbuf, "next: ");
+		strncat(nids_errbuf, pcap_geterr(desc), sizeof(nids_errbuf) - 7);
+		return 0;
+	}
+
+
     /* threading is quite useless (harmful) in this case - should we do an API change?  */
     START_CAP_QUEUE_PROCESS_THREAD();
-    nids_pcap_handler(0, &h, (u_char *)data);
+    nids_pcap_handler(0, header, pkt_data);
     STOP_CAP_QUEUE_PROCESS_THREAD();
     return 1;
 }
